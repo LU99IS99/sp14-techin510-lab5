@@ -25,5 +25,5 @@ res = requests.post(
     json=data,
     params={"key":os.getenv("GOOGLE_API_KEY")}
 )
-print(res.json())
-# Load environment variables
+json_res = res.json()
+print(json_res)
