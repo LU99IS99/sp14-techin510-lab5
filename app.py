@@ -1,50 +1,46 @@
 import os
+import streamlit as st
+from datetime import date
 import google.generativeai as genai
 from dotenv import load_dotenv
-import streamlit as st
-from PyPDF2 import PdfReader
 
+# Load environment variables
 load_dotenv()
 
+# Configure Google generative AI with an API key
 genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 model = genai.GenerativeModel('gemini-pro')
 
-
-def ai_gen(requirement: str, prompt: str):
-    response = model.generate_content([requirement, prompt])
+# Function to generate travel plans based on user input using Google AI
+def ai_gen_travel_plan(destination, start_date, end_date, activities, budget):
+    requirement = f"Generate a travel plan for {destination} from {start_date} to {end_date}. Activities: {', '.join(activities)}. Budget: ${budget}."
+    response = model.generate_content([requirement])
     return response.text
 
-
-# Function to extract text from PDF file
-def get_text(file):
-    pdf_reader = PdfReader(file)
-    text = ""
-    for page_num in range(len(pdf_reader.pages)):
-        page = pdf_reader.pages[page_num]
-        text += page.extract_text()
-    return text
-
-
-# Main function
+# Main function for Streamlit app
 def main():
-    st.title("Mock Interview System📑")  # Add the heading "feedback Generator"
-    if 'resume_text' not in st.session_state:
-        st.session_state.resume_text = None
-    uploaded_file = st.file_uploader("Upload your resume (PDF)", type="pdf")
-    if uploaded_file is not None:
-        st.write("Resume Uploaded Successfully!")
-        resume_text = get_text(uploaded_file)
-        st.session_state.resume_text = resume_text
-    sNum = st.number_input("Number of suggestions you need", min_value=1, max_value=20)
-    qNum = st.number_input("Number of mock questions you need", min_value=1, max_value=20)
-    if st.button("Generate Feedback"):
-        with st.spinner("Your feedback is being generated!! Hang Tight!"):
-            # Generate feedback if both resume and job description are provided
-            if st.session_state.resume_text is not None:
-                requirement = 'Generate %s suggestions and %s possible questions based on my resume' % (sNum, qNum)
-                feedback = ai_gen(requirement, st.session_state.resume_text)
-                st.write("Generated Feedback:")
-                st.write(feedback)
+    st.title("AI-Powered Travel Planner 🌍")
+
+    # Travel destination input
+    destination = st.text_input("Enter your travel destination", "New York")
+
+    # Travel dates input
+    start_date = st.date_input("Start date", date.today())
+    end_date = st.date_input("End date", date.today())
+
+    # Select activities of interest
+    activities_list = ['Sightseeing', 'Hiking', 'Beach', 'Museums', 'Shopping', 'Nightlife']
+    activities = st.multiselect("What activities are you interested in?", activities_list)
+
+    # Budget input
+    budget = st.slider("What is your budget for this trip?", 100, 10000, 1000)
+
+    # Button to generate travel plan
+    if st.button("Generate Travel Plan"):
+        with st.spinner("Generating your AI-powered travel plan..."):
+            travel_plan = ai_gen_travel_plan(destination, start_date, end_date, activities, budget)
+            st.success("Here is your AI-generated travel plan:")
+            st.write(travel_plan)
 
 if __name__ == "__main__":
     main()
