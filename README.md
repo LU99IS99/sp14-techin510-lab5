@@ -1,5 +1,6 @@
-# 🤖 ChatGPT Prompts
+# AI-Powered Travel Planner 🌍
 
+https://sp14-techin510-lab5-fre8fxqkpyg5appmttbxl7.streamlit.app/
 ## Getting Started
 
 ```
